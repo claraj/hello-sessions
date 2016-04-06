@@ -8,7 +8,6 @@ var MongoDBStore = require('connect-mongodb-session')(session);
 app = express();         //Create app
 app.use(logger('dev'));   //Initialize logger - do this first
 
-
 var store = new MongoDBStore(
   {
     uri:'mongodb://localhost:27017/session_db',
@@ -21,11 +20,12 @@ store.on('error', function(error){
   assert.ok(false);     //crash app if can't connect.
 });
 
-
 app.use(session({
-  secret: "random_number_here",  //replace in production app
-  store: store
+  secret: "random_number_here",  //replace in production app!
+  store: store                   //Indicate where to store cookies
 }));
+
+
 
 //All routes will run this function first
 //Calling next() at the end of this function will run the next matching route handler

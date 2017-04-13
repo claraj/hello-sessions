@@ -31,26 +31,40 @@ app.use(session({
 //Calling next() at the end of this function will run the next matching route handler
 app.use(function(req, res, next){
   console.log(req.session.id);
-  var views = req.session.views
+  var views = req.session.pageviews
 
   if (!views) {
-    views = req.session.views = {}; //first time visitor - set up view counter
+    views = req.session.pageviews = {}; //first time visitor - set up view counter
   }
 
   var path = parseurl(req).pathname   //get the URL used in this request
 
-  if (!req.session.views[path]) {    //If no record for this URL yet...
-    req.session.views[path] = 1;
+  if (!req.session.pageviews[path]) {    //If no record for this URL yet...
+    req.session.pageviews[path] = 1;
   } else {                           //User has already visited this page, add 1 to page count
-    req.session.views[path]++ ;
+    req.session.pageviews[path]++ ;
   }
 
   next();    //And call the next matching route handler
 });
 
+// Home page will display a message with number of times page visited.
+app.get('/', function(req, res, next){
+  if (req.session.homepage) {
+    req.session.homepage++;
+    var msg = 'You have visited this page ' + req.session.homepage + ' times.';
+  } else {
+    req.session.homepage = 1;
+    var msg = 'Welcome, first-time visitor.';
+  }
+
+  res.send(msg);
+
+})
+
 
 //Home page will display the last animal page the user visited.
-app.get('/', function(req, res, next){
+app.get('/last', function(req, res, next){
   var lastpage = req.session.lastpage;
   if (lastpage){
     res.send("The last animal page you visited was " + lastpage)
@@ -74,9 +88,10 @@ app.get('/fish', function(req, res) {
 });
 
 
-
+// Show the total page views for all
 app.get('/counts', function(req, res){
-  res.send("You have visited these pages, " + JSON.stringify(req.session.views))
+  res.send("You have visited these pages, " + JSON.stringify(req.session.pageviews))
 });
 
-app.listen(3040);  //And listen on port 3040.
+
+app.listen(3000);  //And listen on port 3000.
